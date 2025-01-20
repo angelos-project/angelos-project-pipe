@@ -1,0 +1,42 @@
+/**
+ * Copyright (c) 2024-2025 by Kristoffer Paulsson <kristoffer.paulsson@talenten.se>.
+ *
+ * This software is available under the terms of the MIT license. Parts are licensed
+ * under different terms if stated. The legal terms are attached to the LICENSE file
+ * and are made available on:
+ *
+ *      https://opensource.org/licenses/MIT
+ *
+ * SPDX-License-Identifier: MIT
+ *
+ * Contributors:
+ *      Kristoffer Paulsson - initial implementation
+ */
+@file:Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
+
+package org.angproj.io.net
+
+public actual enum class SockType {
+    UNKNOWN, SOCK_STREAM, SOCK_DGRAM, SOCK_RAW, SOCK_RDM, SOCK_SEQPACKET;
+
+    public actual fun toCode(): Int = when(this) {
+        SOCK_STREAM -> jnr.constants.platform.Sock.SOCK_STREAM.intValue()
+        SOCK_DGRAM -> jnr.constants.platform.Sock.SOCK_DGRAM.intValue()
+        SOCK_RAW -> jnr.constants.platform.Sock.SOCK_RAW.intValue()
+        SOCK_RDM -> jnr.constants.platform.Sock.SOCK_RDM.intValue()
+        SOCK_SEQPACKET -> jnr.constants.platform.Sock.SOCK_SEQPACKET.intValue()
+        else -> 0
+    }
+
+    public actual companion object {
+        public actual fun <E> mapCode(code: E): SockType = when(code) {
+            jnr.constants.platform.Sock.SOCK_STREAM -> SOCK_STREAM
+            jnr.constants.platform.Sock.SOCK_DGRAM -> SOCK_DGRAM
+            jnr.constants.platform.Sock.SOCK_RAW -> SOCK_RAW
+            jnr.constants.platform.Sock.SOCK_RDM -> SOCK_RDM
+            jnr.constants.platform.Sock.SOCK_SEQPACKET -> SOCK_SEQPACKET
+            else -> UNKNOWN
+        }
+    }
+
+}

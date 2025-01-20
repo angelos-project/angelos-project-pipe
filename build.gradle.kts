@@ -1,75 +1,126 @@
+import com.vanniktech.maven.publish.SonatypeHost
+import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
+
 plugins {
-    kotlin("multiplatform") version "1.9.24"
-    `maven-publish`
+    id("org.jetbrains.kotlin.multiplatform") version "1.9.25"
+    id("com.android.library") version "8.1.0"
+    id("com.vanniktech.maven.publish") version "0.29.0"
 }
 
 group = "org.angproj.io"
 version = "0.1.0"
 
-repositories {
-    mavenCentral()
-    mavenLocal()
-}
-
 kotlin {
     explicitApi()
-    jvm {
-        compilations.all {
-            kotlinOptions.jvmTarget = "1.8"
-        }
-        testRuns["test"].executionTask.configure {
-            useJUnit()
-        }
+    jvmToolchain(19)
+
+    jvm()
+    js {
+        browser()
+        nodejs()
     }
-    js(IR) {
-        browser {}
-        nodejs{
-            testTask{
-                useKarma()
+    // WASM and similar
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs {
+        browser()
+        nodejs()
+    }
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmWasi { nodejs() }
+    // Android
+    androidTarget {
+        /*compilations.all {
+            compileTaskProvider.configure {
+                compilerOptions {
+                    jvmTarget.set(JvmTarget.JVM_1_8)
+                }
             }
-        }
+        }*/
+        publishLibraryVariants("release")
     }
-    val hostOs = System.getProperty("os.name")
-    val isMingwX64 = hostOs.startsWith("Windows")
-    val nativeTarget = when {
-        hostOs == "Mac OS X" -> macosX64("native")
-        hostOs == "Linux" -> linuxX64("native")
-        isMingwX64 -> mingwX64("native")
-        else -> throw GradleException("Host OS is not supported in Kotlin/Native.")
-    }
+    androidNativeArm32()
+    androidNativeArm64()
+    androidNativeX64()
+    androidNativeX86()
+    // Linux
+    linuxArm64()
+    linuxX64()
+    // macOS
+    macosArm64()
+    macosX64()
+    // MingW
+    mingwX64()
+    // iOS
+    iosArm64()
+    iosX64()
+    iosSimulatorArm64()
+    // tvOS
+    tvosArm64()
+    tvosX64()
+    tvosSimulatorArm64()
+    // watchOS
+    watchosArm32()
+    watchosArm64()
+    watchosDeviceArm64()
+    watchosSimulatorArm64()
 
     sourceSets {
-        val commonMain by getting{
-            dependencies {
-                implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.24")
-                implementation("org.angproj.aux.util:angelos-project-aux:0.9.8")
-            }
+        commonMain.dependencies {
+            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
+            implementation("org.angproj.aux:angelos-project-aux:0.9.8")
         }
-        val commonTest by getting {
-            dependencies {
-                implementation(kotlin("test"))
-            }
+        commonTest.dependencies {
+            implementation(kotlin("test"))
         }
-        val jvmMain by getting {
-            dependencies {
-                implementation("net.java.dev.jna:jna:5.14.0")
-            }
+        jvmMain.dependencies {
+            implementation("com.github.jnr:jnr-ffi:2.2.17")
+            implementation("com.github.jnr:jnr-constants:0.10.4")
         }
-        val jvmTest by getting
-        val jsMain by getting
-        val jsTest by getting
-        val nativeMain by getting
-        val nativeTest by getting
     }
 }
 
-publishing {
-    repositories {
-        maven {}
+android {
+    namespace = group.toString()
+    compileSdk = 34
+    defaultConfig {
+        minSdk = 30
     }
-    publications {
-        getByName<MavenPublication>("kotlinMultiplatform") {
-            artifactId = rootProject.name
+    /*compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }*/
+}
+
+mavenPublishing {
+    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
+
+    //signAllPublications()
+
+    coordinates(group.toString(), version.toString())
+
+    pom {
+        name.set("My library")
+        description.set("A library.")
+        inceptionYear.set("2024")
+        url.set("https://github.com/kotlin/multiplatform-library-template/")
+        licenses {
+            license {
+                name.set("XXX")
+                url.set("YYY")
+                distribution.set("ZZZ")
+            }
+        }
+        developers {
+            developer {
+                id.set("XXX")
+                name.set("YYY")
+                url.set("ZZZ")
+            }
+        }
+        scm {
+            url.set("XXX")
+            connection.set("YYY")
+            developerConnection.set("ZZZ")
         }
     }
 }
