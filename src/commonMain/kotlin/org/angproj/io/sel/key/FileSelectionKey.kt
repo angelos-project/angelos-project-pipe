@@ -16,9 +16,18 @@ package org.angproj.io.sel.key
 
 import kotlinx.coroutines.channels.Channel
 import org.angproj.io.sel.FileDescr
+import org.angproj.io.sel.Selector
 
-public class FileSelectionKey(public override val fileDescr: FileDescr): SelectionKey() {
+public class FileSelectionKey(
+    public override val fileDescr: FileDescr,
+    selector: Selector
+): SelectionKey(selector) {
+
     private val semaphore: Channel<Int> = Channel(Channel.RENDEZVOUS)
+
+    override fun cancel() {
+        TODO("Not yet implemented")
+    }
 
     override suspend fun wakeupReceived(): Int {
         return semaphore.receive()

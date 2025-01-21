@@ -14,7 +14,11 @@
  */
 package org.angproj.io.net
 
-import org.angproj.io.ffi.type.KQueueEventT
+import org.angproj.aux.util.NullObject
+import org.angproj.io.ffi.NativeArray
+import org.angproj.io.ffi.impl.DefaultKQueueEvent
+import org.angproj.io.ffi.impl.TimeSpec
+import org.angproj.io.ffi.ptr
 import org.angproj.io.sel.FileDescr
 import org.angproj.io.sel.PipePair
 
@@ -32,10 +36,37 @@ public abstract class NetworkConnect : NetworkDriver() {
 
     protected fun kqueue(): FileDescr = FileDescr(NativeInterface.kqueue())
 
-    protected fun<E: KQueueEventT> kevent(
+    protected fun kevent(
         kqfd: FileDescr,
+        changeBuf: NativeArray<DefaultKQueueEvent>,
+        nChanges: Int,
+        timeOut: TimeSpec
+    ): Int {
+        return NativeInterface.kevent(
+            kqfd.single,
+            changeBuf.ptr,
+            nChanges,
+            NullObject.ptr,
+            0,
+            timeOut.ptr
+        )
+    }
 
-        ) {
-
+    protected fun kevent(
+        kqfd: FileDescr,
+        changeBuf: NativeArray<DefaultKQueueEvent>,
+        nChanges: Int,
+        eventBuf: NativeArray<DefaultKQueueEvent>,
+        nEvents: Int,
+        timeOut: TimeSpec
+    ): Int {
+        return NativeInterface.kevent(
+            kqfd.single,
+            changeBuf.ptr,
+            nChanges,
+            eventBuf.ptr,
+            nEvents,
+            timeOut.ptr
+        )
     }
 }

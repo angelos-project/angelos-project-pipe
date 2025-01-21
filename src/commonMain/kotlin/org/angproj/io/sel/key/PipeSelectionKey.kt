@@ -19,12 +19,14 @@ import org.angproj.aux.io.address
 import org.angproj.aux.io.memBinOf
 import org.angproj.io.sel.FileDescr
 import org.angproj.io.sel.PipePair
+import org.angproj.io.sel.Selector
 
-public class PipeSelectionKey: SelectionKey() {
+public class PipeSelectionKey(selector: Selector) : SelectionKey(selector) {
     protected val pipeFd: PipePair = PipePair()
     protected val pipePayload: Binary = memBinOf(4)
 
     private var _fd: FileDescr
+
     init {
         check(pipe(pipeFd) == 0) { getLastErrorString() }
         _fd = FileDescr(pipeFd.inComing)
@@ -32,6 +34,10 @@ public class PipeSelectionKey: SelectionKey() {
 
     override val fileDescr: FileDescr
         get() = _fd
+
+    override fun cancel() {
+        TODO("Not yet implemented")
+    }
 
     override suspend fun wakeupReceived(): Int {
         read(pipeFd.inComing, pipePayload.address(), pipePayload.capacity)

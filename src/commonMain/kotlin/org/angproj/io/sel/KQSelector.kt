@@ -17,6 +17,9 @@ package org.angproj.io.sel
 import org.angproj.io.ffi.NativeArray
 import org.angproj.io.ffi.impl.DefaultKQueueEvent
 import org.angproj.io.ffi.impl.TimeSpec
+import kotlin.time.Duration
+import kotlin.time.DurationUnit
+import kotlin.time.toDuration
 
 public class KQSelector : Selector() {
 
@@ -35,7 +38,17 @@ public class KQSelector : Selector() {
             it.filter = EVFILT_READ
             it.flags = EV_ADD
         }
-        kevent
+        kevent(kqfd, changeBuf, 1, zeroTimeSpec)
+    }
+
+    override fun poll(timeout: Long): Int {
+
+        val ts = if(timeout >= 0) TimeSpec.allocate().also {
+            it.tvSec = timeout.toDuration(DurationUnit.MILLISECONDS).inWholeSeconds
+            it.tvNSec = (timeout % 1000).toDuration(DurationUnit.MILLISECONDS).inWholeNanoseconds
+        } else zeroTimeSpec
+
+        if(ts != zeroTimeSpec) ts.close()
     }
 
     override fun close() {

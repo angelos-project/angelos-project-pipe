@@ -16,6 +16,15 @@ package org.angproj.io.ffi
 
 import org.angproj.aux.io.Text
 import org.angproj.aux.utf.Ascii
+import org.angproj.aux.util.NullObject
+import org.angproj.aux.util.TypePointer
+
+
+public fun TypePointer.isNull(): Boolean = NullObject.ptr == this
+private val nullPointer = TypePointer(0)
+public val NullObject.ptr: TypePointer
+    get() = nullPointer
+
 
 public fun Text.limitAtNull(): Int {
     val oldLimit = limit
