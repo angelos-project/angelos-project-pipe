@@ -25,6 +25,7 @@ import platform.posix.socket as posix_socket
 import platform.posix.connect as posix_connect
 import platform.posix._pipe as posix_pipe
 import platform.posix.close as posix_close
+import platform.posix.shutdown as posix_shutdown
 
 
 @OptIn(ExperimentalForeignApi::class)
@@ -75,5 +76,17 @@ public actual object NativeInterface {
         timeout: TypePointer
     ): Int {
         throw UnsupportedOperationException()
+    }
+
+    public actual fun poll(pfds: TypePointer, nfds: Int, timeout: Int): Int {
+        throw UnsupportedOperationException()
+    }
+
+    public actual fun fcntl(fd: Int, cmd: Int, data: Int): Int {
+        throw UnsupportedOperationException()
+    }
+
+    public actual fun shutdown(s: Int, how: Int): Int {
+        return posix_shutdown(s.convert(), how)
     }
 }

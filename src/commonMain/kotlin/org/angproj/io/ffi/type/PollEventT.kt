@@ -14,7 +14,9 @@
  */
 package org.angproj.io.ffi.type
 
-public interface PollEventT {
+import org.angproj.io.sel.event.SelectionEvent
+
+public interface PollEventT : SelectionEvent {
     public var fd: Int
     public var event: Short
     public var rEvent: Short

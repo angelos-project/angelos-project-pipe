@@ -16,10 +16,13 @@ package org.angproj.io.net
 
 import org.angproj.aux.util.NullObject
 import org.angproj.io.ffi.NativeArray
-import org.angproj.io.ffi.impl.DefaultKQueueEvent
+import org.angproj.io.ffi.impl.AbstractKQueueEvent
+import org.angproj.io.ffi.impl.PollEvent
 import org.angproj.io.ffi.impl.TimeSpec
 import org.angproj.io.ffi.ptr
-import org.angproj.io.sel.FileDescr
+import org.angproj.io.fs.OpenFlag
+import org.angproj.io.fs.StatusFlag
+import org.angproj.io.pipe.FileDescr
 import org.angproj.io.sel.PipePair
 
 public abstract class NetworkConnect : NetworkDriver() {
@@ -36,37 +39,48 @@ public abstract class NetworkConnect : NetworkDriver() {
 
     protected fun kqueue(): FileDescr = FileDescr(NativeInterface.kqueue())
 
-    protected fun kevent(
+    protected fun <E: AbstractKQueueEvent>kevent(
         kqfd: FileDescr,
-        changeBuf: NativeArray<DefaultKQueueEvent>,
-        nChanges: Int,
+        changeBuf: NativeArray<E>,
         timeOut: TimeSpec
     ): Int {
         return NativeInterface.kevent(
             kqfd.single,
             changeBuf.ptr,
-            nChanges,
+            changeBuf.limit,
             NullObject.ptr,
             0,
             timeOut.ptr
         )
     }
 
-    protected fun kevent(
+    protected fun <E: AbstractKQueueEvent>kevent(
         kqfd: FileDescr,
-        changeBuf: NativeArray<DefaultKQueueEvent>,
-        nChanges: Int,
-        eventBuf: NativeArray<DefaultKQueueEvent>,
-        nEvents: Int,
+        changeBuf: NativeArray<E>,
+        eventBuf: NativeArray<E>,
         timeOut: TimeSpec
     ): Int {
         return NativeInterface.kevent(
             kqfd.single,
             changeBuf.ptr,
-            nChanges,
+            changeBuf.limit,
             eventBuf.ptr,
-            nEvents,
+            eventBuf.limit,
             timeOut.ptr
         )
+    }
+
+    protected fun poll(pfds: NativeArray<PollEvent>, timeout: Int): Int {
+        return NativeInterface.poll(pfds.ptr, pfds.limit, timeout)
+    }
+
+    protected fun fcntl(fd: FileDescr, cmd: StatusFlag, data: Int): Int {
+        return NativeInterface.fcntl(fd.single, cmd.toCode(), data)
+    }
+
+    protected fun nonBlocking(fileDescr: FileDescr) {
+        var flags: Int = fcntl(fileDescr, StatusFlag.GETFL, 0)
+        flags = flags or OpenFlag.NONBLOCK.toCode()
+        fcntl(fileDescr, StatusFlag.SETFL, flags)
     }
 }

@@ -15,7 +15,7 @@
 package org.angproj.io.net
 
 import org.angproj.io.pipe.AbstractTransport
-import org.angproj.io.sel.FileDescr
+import org.angproj.io.pipe.FileDescr
 
 /**
  * Transport for all network connections using operating system network socket.

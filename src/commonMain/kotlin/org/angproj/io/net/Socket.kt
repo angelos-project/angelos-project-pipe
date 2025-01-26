@@ -14,7 +14,7 @@
  */
 package org.angproj.io.net
 
-import org.angproj.io.sel.FileDescr
+import org.angproj.io.pipe.FileDescr
 
 public class Socket(private val fd: FileDescr) {
 

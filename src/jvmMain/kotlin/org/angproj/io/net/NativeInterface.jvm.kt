@@ -68,7 +68,7 @@ public actual object NativeInterface {
     }
 
     public actual fun kqueue(): Int {
-        throw UnsupportedOperationException()
+        return libc.kqueue()
     }
 
     public actual fun kevent(
@@ -88,4 +88,17 @@ public actual object NativeInterface {
             timeout.toPointer()
         )
     }
+
+    public actual fun poll(pfds: TypePointer, nfds: Int, timeout: Int): Int {
+        return libc.poll(pfds.toPointer(), nfds, timeout)
+    }
+
+    public actual fun fcntl(fd: Int, cmd: Int, data: Int): Int {
+        return libc.fcntl(fd, cmd, data)
+    }
+
+    public actual fun shutdown(s: Int, how: Int): Int {
+        return libc.shutdown(s, how)
+    }
+
 }

@@ -65,4 +65,16 @@ public actual object NativeInterface {
     ): Int {
         throw UnsupportedOperationException()
     }
+
+    public actual fun poll(pfds: TypePointer, nfds: Int, timeout: Int): Int {
+        throw UnsupportedOperationException()
+    }
+
+    public actual fun fcntl(fd: Int, cmd: Int, data: Int): Int {
+        throw UnsupportedOperationException()
+    }
+
+    public actual fun shutdown(s: Int, how: Int): Int {
+        throw UnsupportedOperationException()
+    }
 }

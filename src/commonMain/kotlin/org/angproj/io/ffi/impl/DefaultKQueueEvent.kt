@@ -18,13 +18,12 @@ import org.angproj.aux.io.Binary
 import org.angproj.aux.io.TypeSize
 import org.angproj.aux.util.TypePointer
 import org.angproj.io.ffi.NativeLayout
-import org.angproj.io.ffi.NativeStruct
 import org.angproj.io.ffi.type.DefaultKQueueEventT
 
 
 public class DefaultKQueueEvent internal constructor(
     bin: Binary, offset: Int, layout: NativeLayout<DefaultKQueueEvent>
-) : NativeStruct(bin, offset, layout), DefaultKQueueEventT {
+) : AbstractKQueueEvent(bin, offset, layout), DefaultKQueueEventT {
 
     override var ident: Long
         get() = bin.loadLong(0)

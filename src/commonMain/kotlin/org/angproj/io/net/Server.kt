@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2024 by Kristoffer Paulsson <kristoffer.paulsson@talenten.se>.
+ * Copyright (c) 2024-2025 by Kristoffer Paulsson <kristoffer.paulsson@talenten.se>.
  *
  * This software is available under the terms of the MIT license. Parts are licensed
  * under different terms if stated. The legal terms are attached to the LICENSE file
@@ -17,8 +17,6 @@ package org.angproj.io.net
 public interface Server {
 
     public val port: Short
-
-    public val fd: Int
 
     public suspend fun bindAndListen()
 }

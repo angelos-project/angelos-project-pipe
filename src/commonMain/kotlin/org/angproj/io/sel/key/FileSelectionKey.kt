@@ -14,28 +14,23 @@
  */
 package org.angproj.io.sel.key
 
-import kotlinx.coroutines.channels.Channel
-import org.angproj.io.sel.FileDescr
+import org.angproj.io.pipe.Channel
+import kotlinx.coroutines.channels.Channel as QCHannel
 import org.angproj.io.sel.Selector
+import org.angproj.io.sel.event.SelectionEvent
 
-public class FileSelectionKey(
-    public override val fileDescr: FileDescr,
-    selector: Selector
-): SelectionKey(selector) {
+public class FileSelectionKey<E: SelectionEvent>(
+    selector: Selector<*, E>,
+    chan: Channel,
+    event: E,
+    subsFlags: Int
+): NativeSelectionKey<E>(selector, chan, event, subsFlags) {
 
-    private val semaphore: Channel<Int> = Channel(Channel.RENDEZVOUS)
+    private val semaphore: QCHannel<Int> = QCHannel(QCHannel.RENDEZVOUS)
 
-    override fun cancel() {
-        TODO("Not yet implemented")
-    }
+    override fun wakeUpImpl(msg: Int) { semaphore.trySend(msg) }
 
-    override suspend fun wakeupReceived(): Int {
-        return semaphore.receive()
-    }
-
-    override fun wakeup(msg: Int) {
-        semaphore.trySend(msg)
-    }
+    override suspend fun wakeUpReceivedImpl(): Int = semaphore.receive()
 
     override fun close() {
         semaphore.close()

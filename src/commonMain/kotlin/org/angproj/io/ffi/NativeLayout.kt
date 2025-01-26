@@ -40,5 +40,5 @@ public abstract class NativeLayout<E: NativeStruct> {
     /**
      * Allocates an array of NativeStruct implementation of type E, the memory is centralized.
      * */
-    public fun allocateArray(size: Int): NativeArray<E> = NativeArray(size, this)
+    public fun allocateArray(size: Int, mode: ArrayMode): NativeArray<E> = NativeArray(size, mode, this)
 }

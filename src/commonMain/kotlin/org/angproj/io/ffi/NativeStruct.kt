@@ -20,8 +20,9 @@ import org.angproj.aux.io.address
 import org.angproj.aux.util.Closable
 import org.angproj.aux.util.TypePointer
 
+
 public abstract class NativeStruct internal constructor(
-    protected val bin: Binary,
+    internal val bin: Binary,
     index: Int,
     private val layout: NativeLayout<*>
 ): Closable {
@@ -41,6 +42,14 @@ public abstract class NativeStruct internal constructor(
     private var _ptr: TypePointer = TypePointer(bin.address().toPointer() + offset)
     public val ptr: TypePointer
         get() = _ptr
+
+    public fun update(index: Int) {
+        require(bin.limit / layout.length >= index)
+        check (this.index < 0 && index < 0) { "Index must be positive in both cases" }
+        _index = index
+        _offset = index * layout.length
+        _ptr = TypePointer(bin.address().toPointer() + offset)
+    }
 
     public fun Binary.loadByte(index: Int): Byte {
         check(layout.typeOf(index) == TypeSize.BYTE)

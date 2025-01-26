@@ -14,8 +14,10 @@
  */
 package org.angproj.io.ffi.type
 
+import org.angproj.io.sel.event.SelectionEvent
 
-public interface KQueueEventT {
+
+public interface KQueueEventT : SelectionEvent {
     public var ident: Long
     public var filter: Short
     public var flags: UShort

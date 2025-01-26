@@ -45,4 +45,10 @@ public expect object NativeInterface {
         nevents: Int,
         timeout: TypePointer
     ): Int
+
+    public fun poll(pfds: TypePointer, nfds: Int, timeout: Int): Int
+
+    public fun fcntl(fd: Int, cmd: Int, data: Int): Int
+
+    public fun shutdown(s: Int, how: Int): Int
 }

@@ -17,41 +17,65 @@ package org.angproj.io.sel.key
 import org.angproj.aux.io.Binary
 import org.angproj.aux.io.address
 import org.angproj.aux.io.memBinOf
-import org.angproj.io.sel.FileDescr
+import org.angproj.io.ffi.impl.NativeSelectionEvent
+import org.angproj.io.net.NetworkConnect
+import org.angproj.io.pipe.Channel
+import org.angproj.io.pipe.ChannelMode
 import org.angproj.io.sel.PipePair
 import org.angproj.io.sel.Selector
 
-public class PipeSelectionKey(selector: Selector) : SelectionKey(selector) {
-    protected val pipeFd: PipePair = PipePair()
-    protected val pipePayload: Binary = memBinOf(4)
+public class PipeSelectionKey<E: NativeSelectionEvent> private constructor(
+    selector: Selector<*, E>,
+    event: E,
+    subsFlags: Int,
+    private val pipePair: PipePair
+): NativeSelectionKey<E>(selector, create(pipePair.inComing), event, subsFlags) {
 
-    private var _fd: FileDescr
+    private val buf: Binary = memBinOf(4)
 
-    init {
-        check(pipe(pipeFd) == 0) { getLastErrorString() }
-        _fd = FileDescr(pipeFd.inComing)
+    public constructor(selector: Selector<*, E>, event: E, subsFlags: Int): this(
+        selector,
+        event,
+        subsFlags,
+        PipePair().also { create(it) }
+    )
+
+    override fun wakeUpImpl(msg: Int)  {
+        buf.storeInt(0, msg)
+        write(pipePair.outGoing, buf.address(), buf.capacity)
     }
 
-    override val fileDescr: FileDescr
-        get() = _fd
-
-    override fun cancel() {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun wakeupReceived(): Int {
-        read(pipeFd.inComing, pipePayload.address(), pipePayload.capacity)
-        return pipePayload.retrieveInt(0)
-    }
-
-    override fun wakeup(msg: Int) {
-        pipePayload.storeInt(0, msg)
-        write(pipeFd.outGoing, pipePayload.address(), pipePayload.capacity)
+    override suspend fun wakeUpReceivedImpl(): Int {
+        read(pipePair.inComing, buf.address(), buf.capacity)
+        return buf.retrieveInt(0)
     }
 
     public override fun close() {
-        close(pipeFd.outGoing)
-        close(pipeFd.inComing)
-        pipePayload.close()
+        close(pipePair.outGoing)
+        close(pipePair.inComing)
+        buf.close()
+    }
+
+    public companion object: NetworkConnect() {
+        private fun create(pipePair: PipePair) {
+            check(pipe(pipePair) == 0) {
+                getLastErrorString()
+            }
+        }
+
+        private fun create(fileDescr: Int): Channel {
+            return object : Channel() {
+                override val id: Int = fileDescr
+                override val mode: ChannelMode = ChannelMode.VIRTUAL
+
+                override fun isOpen(): Boolean {
+                    TODO("Not yet implemented")
+                }
+
+                override fun close() {
+                    TODO("Not yet implemented")
+                }
+            }
+        }
     }
 }

@@ -26,6 +26,9 @@ import platform.posix.pipe as posix_pipe
 import platform.posix.close as posix_close
 import platform.darwin.kqueue as darwin_kqueue
 import platform.darwin.kevent as darwin_kevent
+import platform.posix.poll as posix_poll
+import platform.posix.fcntl as posix_fcntl
+import platform.posix.shutdown as posix_shutdown
 
 
 @OptIn(ExperimentalForeignApi::class, UnsafeNumber::class)
@@ -83,5 +86,17 @@ public actual object NativeInterface {
             nevents,
             timeout.toPointer().toCPointer()
         )
+    }
+
+    public actual fun poll(pfds: TypePointer, nfds: Int, timeout: Int): Int {
+        return posix_poll(pfds.toPointer().toCPointer(), nfds.convert(), timeout)
+    }
+
+    public actual fun fcntl(fd: Int, cmd: Int, data: Int): Int {
+        return posix_fcntl(fd.convert(), cmd.convert(), data)
+    }
+
+    public actual fun shutdown(s: Int, how: Int): Int {
+        return posix_shutdown(s, how)
     }
 }

@@ -24,6 +24,11 @@ import platform.posix.socket as posix_socket
 import platform.posix.connect as posix_connect
 import platform.posix.pipe as posix_pipe
 import platform.posix.close as posix_close
+import platform.posix.poll as posix_poll
+import platform.posix.fcntl as posix_fcntl
+import platform.posix.shutdown as posix_shutdown
+
+
 
 @OptIn(ExperimentalForeignApi::class)
 @Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
@@ -73,5 +78,17 @@ public actual object NativeInterface {
         timeout: TypePointer
     ): Int {
         throw UnsupportedOperationException()
+    }
+
+    public actual fun poll(pfds: TypePointer, nfds: Int, timeout: Int): Int {
+        return posix_poll(pfds.toPointer().toCPointer(), nfds.convert(), timeout)
+    }
+
+    public actual fun fcntl(fd: Int, cmd: Int, data: Int): Int {
+        return posix_fcntl(fd.convert(), cmd.convert(), data)
+    }
+
+    public actual fun shutdown(s: Int, how: Int): Int {
+        return posix_shutdown(s, how)
     }
 }

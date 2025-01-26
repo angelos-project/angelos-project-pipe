@@ -14,16 +14,15 @@
  */
 package org.angproj.io.ffi
 
-import org.angproj.aux.io.Binary
-import org.angproj.aux.io.address
-import org.angproj.aux.io.memBinOf
-import org.angproj.aux.io.securelyRandomize
+import org.angproj.aux.buf.copyInto
+import org.angproj.aux.io.*
 import org.angproj.aux.util.Closable
 import org.angproj.aux.util.TypePointer
 
 
 public class NativeArray<E: NativeStruct>(
     private val initialSize: Int,
+    private val mode: ArrayMode,
     private val layout: NativeLayout<E>
 ): Closable {
     private val bin: Binary = memBinOf(initialSize * layout.length)
@@ -32,33 +31,97 @@ public class NativeArray<E: NativeStruct>(
     public val ptr: TypePointer
         get() = _ptr
 
-    private var position: Int = 0
+    private var _position: Int = 0
+    public val position: Int
+        get() = _position
 
-    private val unusedSlots = mutableSetOf<Int>()
-    private val preparedSlots = ArrayList<E>(initialSize)
-
-    public fun allocate(): E = when {
-        unusedSlots.isNotEmpty() -> unusedSlots.first().let {
-            unusedSlots.remove(it)
-            preparedSlots[it]
-        }
-        position < initialSize -> layout.create(bin, ++position, layout).also {
-            preparedSlots[position] = it
-            bin.limitAt(position * layout.length)
-        }
-        else -> error("Max capacity reached")
+    public fun positionAt(newPos: Int) {
+        require(newPos in 0.._limit)
+        _position = newPos
     }
 
-    public fun recycle(element: E): Boolean = when {
-        element !in preparedSlots -> false
-        else -> unusedSlots.add(preparedSlots.indexOf(element))
+    private var _limit: Int = 0
+    public val limit: Int
+        get() = _limit
+
+    /*public fun limitAt(newLimit: Int) {
+        require(newLimit in 0..capacity)
+        _limit = newLimit
+        if(_position > newLimit) positionAt(newLimit) //_position = newLimit
+    }*/
+
+    public val capacity: Int
+        get() = initialSize
+
+    init {
+        when(mode) {
+            ArrayMode.BUFFER -> clear()
+            ArrayMode.INCREMENT -> flip()
+        }
+    }
+
+    public fun allocateWitness(): E = layout.create(bin, position, layout)
+
+    public fun hasRemaining(): Boolean = limit - position == 0
+
+    public fun access(ns: E, action: E.() -> Unit) {
+        check(bin === ns.bin)
+        check(position < limit)
+        ns.update(_position++)
+        ns.action()
     }
 
     public fun clear() {
-        preparedSlots.forEach { it.close() }
-        preparedSlots.clear()
+        _position = 0
+        _limit = capacity
+    }
+
+    public fun flip() {
+        _limit = position
+        _position = 0
+    }
+
+    public fun rewind() {
+        _position = 0
+    }
+
+    private val slots = mutableListOf<E>()
+
+    public fun allocate(): E {
+        if(limit >= capacity) error("Maxed out")
+        return layout.create(bin, _limit++, layout).also {
+            slots.add(it)
+            bin.limitAt(_limit * layout.length)
+        }
+    }
+
+    public fun recycle(element: E) {
+        if(element !in slots) error("Element from wrong array")
+        val last: E = slots.last()
+        if(last !== element) {
+            val index = slots.indexOf(element)
+            bin.copyInto(
+                bin,
+                index * layout.length,
+                slots.lastIndex * layout.length,
+                slots.size * layout.length
+            )
+            slots[index] = last
+            slots.remove(last)
+            _limit--
+            bin.limitAt(_limit * layout.length)
+        } else {
+            slots.remove(last)
+            _limit--
+            bin.limitAt(_limit * layout.length)
+        }
+    }
+
+    public fun reset() {
+        slots.forEach { it.close() }
+        slots.clear()
         bin.limitAt(0)
-        position = 0
+        _position = 0
     }
 
     public override fun close() {

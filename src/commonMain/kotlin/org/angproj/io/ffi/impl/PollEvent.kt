@@ -17,13 +17,12 @@ package org.angproj.io.ffi.impl
 import org.angproj.aux.io.Binary
 import org.angproj.aux.io.TypeSize
 import org.angproj.io.ffi.NativeLayout
-import org.angproj.io.ffi.NativeStruct
 import org.angproj.io.ffi.type.PollEventT
 
 
 public class PollEvent internal constructor(
     bin: Binary, offset: Int, layout: NativeLayout<PollEvent>
-) : NativeStruct(bin, offset, layout), PollEventT {
+) : NativeSelectionEvent(bin, offset, layout), PollEventT {
 
     override var fd: Int
         get() = bin.loadInt(0)
