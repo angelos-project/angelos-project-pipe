@@ -14,8 +14,12 @@
  */
 package org.angproj.io.sel
 
+import org.angproj.io.ffi.impl.BsdSockAddrUnix
 import org.angproj.io.ffi.impl.DefaultKQueueEvent
+import org.angproj.io.ffi.impl.SockAddrUnix
+import kotlin.experimental.ExperimentalNativeApi
 
+@OptIn(ExperimentalNativeApi::class)
 @Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 public actual abstract class SelectorProvider {
     public actual fun openNativeSelector(): NativeSelector<*, *> {
@@ -25,5 +29,9 @@ public actual abstract class SelectorProvider {
 
     public companion object {
         private var nativeSelector: NativeSelector<*, *>? = null
+    }
+
+    public actual fun newSockAddrUnix(): SockAddrUnix = when(Platform.osFamily) {
+        else -> BsdSockAddrUnix.allocate()
     }
 }

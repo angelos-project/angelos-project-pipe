@@ -52,9 +52,9 @@ public abstract class NetworkDriver {
 
     protected fun read(
         fd: Int, dataPtr: TypePointer, len: Int
-    ): Int = NativeInterface.read(fd, dataPtr, len.toLong())
+    ): Int = NativeInterface.read(fd, dataPtr, len)
 
     protected fun write(
         fd: Int, dataPtr: TypePointer, len: Int
-    ): Int = NativeInterface.write(fd, dataPtr, len.toLong())
+    ): Int = NativeInterface.write(fd, dataPtr, len)
 }

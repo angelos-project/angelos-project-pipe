@@ -74,11 +74,11 @@ public class WinLibCAdapter public constructor(winlibc: LibMSVCRT) : LibC, Loade
         return win._close(fd)
     }
 
-    override fun read(fd: Int, data: Long, size: Long): Int {
+    override fun read(fd: Int, data: Long, size: Int): Int {
         TODO("Not yet implemented")
     }
 
-    override fun write(fd: Int, data: Long, size: Long): Int {
+    override fun write(fd: Int, data: Long, size: Int): Int {
         TODO("Not yet implemented")
     }
 

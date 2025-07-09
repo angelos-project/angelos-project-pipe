@@ -23,9 +23,9 @@ public expect object NativeInterface {
 
     public fun errno(): Int
 
-    public fun read(fd: Int, data: TypePointer, size: Long): Int
+    public fun read(fd: Int, data: TypePointer, size: Int): Int
 
-    public fun write(fd: Int, data: TypePointer, size: Long): Int
+    public fun write(fd: Int, data: TypePointer, size: Int): Int
 
     public fun socket(domain: Int, type: Int, protocol: Int): Int
 
@@ -51,4 +51,6 @@ public expect object NativeInterface {
     public fun fcntl(fd: Int, cmd: Int, data: Int): Int
 
     public fun shutdown(s: Int, how: Int): Int
+
+    public fun getpeername(fd: Int, addr: TypePointer, len: Int): Int
 }

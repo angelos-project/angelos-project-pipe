@@ -16,6 +16,7 @@ package org.angproj.io.net
 
 import kotlinx.cinterop.*
 import org.angproj.aux.util.TypePointer
+import platform.posix.socklen_tVar
 import platform.posix.strerror as posix_strerror
 import platform.posix.errno as posix_errno
 import platform.posix.read as posix_read
@@ -27,7 +28,7 @@ import platform.posix.close as posix_close
 import platform.posix.poll as posix_poll
 import platform.posix.fcntl as posix_fcntl
 import platform.posix.shutdown as posix_shutdown
-
+import platform.posix.getpeername as posix_peername
 
 
 @OptIn(ExperimentalForeignApi::class)
@@ -41,11 +42,11 @@ public actual object NativeInterface {
         return posix_errno
     }
 
-    public actual fun read(fd: Int, data: TypePointer, size: Long): Int {
+    public actual fun read(fd: Int, data: TypePointer, size: Int): Int {
         return posix_read(fd, data.toPointer().toCPointer<CArrayPointerVar<ByteVar>>(), size.convert()).toInt()
     }
 
-    public actual fun write(fd: Int, data: TypePointer, size: Long): Int {
+    public actual fun write(fd: Int, data: TypePointer, size: Int): Int {
         return posix_write(fd, data.toPointer().toCPointer<CArrayPointerVar<ByteVar>>(), size.convert()).toInt()
     }
 
@@ -90,5 +91,16 @@ public actual object NativeInterface {
 
     public actual fun shutdown(s: Int, how: Int): Int {
         return posix_shutdown(s, how)
+    }
+
+    public actual fun getpeername(fd: Int, addr: TypePointer, len: Int): Int {
+        val newSpace = intArrayOf(len)
+        return newSpace.usePinned {
+            val newLen = it.addressOf(0).reinterpret<socklen_tVar>()
+            when(posix_peername(fd, addr.toPointer().toCPointer(), newLen)) {
+                -1 -> -1
+                else -> newSpace[0]
+            }
+        }
     }
 }

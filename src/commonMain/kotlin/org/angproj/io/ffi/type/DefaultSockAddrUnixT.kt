@@ -15,10 +15,11 @@
 package org.angproj.io.ffi.type
 
 import org.angproj.aux.io.Text
+import org.angproj.io.net.ProtocolFamily
 
 public interface DefaultSockAddrUnixT : SockAddrUnixT {
-    public var sunFamily: UShort
-    public var sunAddr: Text
+    public override var sunFamily: ProtocolFamily // UShort
+    public override var sunAddr: Text
 }
 
 /**

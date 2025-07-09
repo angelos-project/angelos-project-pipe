@@ -15,9 +15,13 @@
 package org.angproj.io.ffi.type
 
 import org.angproj.aux.io.Text
+import org.angproj.io.net.ProtocolFamily
 
 
 public interface SockAddrUnixT {
+    public var sunFamily: ProtocolFamily
+    public var sunAddr: Text
+
     public fun getPath(): Text
     public fun setPath(txt: Text)
 }

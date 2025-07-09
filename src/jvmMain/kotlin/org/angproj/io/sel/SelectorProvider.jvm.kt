@@ -16,9 +16,7 @@ package org.angproj.io.sel
 
 import jnr.ffi.Platform
 import org.angproj.io.ffi.NativeLayout
-import org.angproj.io.ffi.impl.DefaultKQueueEvent
-import org.angproj.io.ffi.impl.FreeBsd12KQueueEvent
-import org.angproj.io.ffi.impl.PollEvent
+import org.angproj.io.ffi.impl.*
 
 @Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 public actual abstract class SelectorProvider {
@@ -26,17 +24,9 @@ public actual abstract class SelectorProvider {
         if(nativeSelector == null) nativeSelector = when(Platform.getNativePlatform().isBSD) {
             false -> PollSelector(PollEvent)
             else -> {
-                var isFreebsd12orLater = false
-                if (Platform.getNativePlatform().os == Platform.OS.FREEBSD) {
-                    var version = System.getProperty("os.version") ?: ""
-                    var trI = -1
-                    for (c in charArrayOf(' ', '_', '-', '+', '.')) {
-                        val i = version.indexOf(c)
-                        if (i >= 0 && (trI == -1 || trI > i)) trI = i
-                    }
-                    if (trI >= 0) version = version.substring(0, trI)
-                    if (version.toInt() > 11) isFreebsd12orLater = true
-                }
+                val isFreebsd12orLater =
+                    Platform.getNativePlatform().os == Platform.OS.FREEBSD
+                            && Platform.getNativePlatform().versionMajor > 11
                 when(isFreebsd12orLater) {
                     true -> KQSelector<NativeLayout<FreeBsd12KQueueEvent>, FreeBsd12KQueueEvent>(FreeBsd12KQueueEvent)
                     else -> KQSelector<NativeLayout<DefaultKQueueEvent>, DefaultKQueueEvent>(DefaultKQueueEvent)
@@ -48,5 +38,11 @@ public actual abstract class SelectorProvider {
 
     public companion object {
         private var nativeSelector: NativeSelector<*, *>? = null
+    }
+
+    public actual fun newSockAddrUnix(): SockAddrUnix = when {
+        Platform.getNativePlatform().isBSD -> BsdSockAddrUnix.allocate()
+        Platform.getNativePlatform().os == Platform.OS.LINUX -> LinuxSockAddrUnix.allocate()
+        else -> DefaultSockAddrUnix.allocate()
     }
 }

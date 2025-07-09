@@ -15,12 +15,13 @@
 package org.angproj.io.ffi.type
 
 import org.angproj.aux.io.Text
+import org.angproj.io.net.ProtocolFamily
 
 
 public interface BsdSockAddrUnixT : SockAddrUnixT{
     public val sunLen: UByte
-    public var sunFamily: UByte
-    public var sunAddr: Text
+    public override var sunFamily: ProtocolFamily // UByte
+    public override var sunAddr: Text
 }
 
 /**

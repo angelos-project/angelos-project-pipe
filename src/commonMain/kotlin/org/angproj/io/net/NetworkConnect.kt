@@ -15,9 +15,11 @@
 package org.angproj.io.net
 
 import org.angproj.aux.util.NullObject
+import org.angproj.aux.util.TypePointer
 import org.angproj.io.ffi.NativeArray
 import org.angproj.io.ffi.impl.AbstractKQueueEvent
 import org.angproj.io.ffi.impl.PollEvent
+import org.angproj.io.ffi.impl.SockAddrUnix
 import org.angproj.io.ffi.impl.TimeSpec
 import org.angproj.io.ffi.ptr
 import org.angproj.io.fs.OpenFlag
@@ -25,12 +27,32 @@ import org.angproj.io.fs.StatusFlag
 import org.angproj.io.pipe.FileDescr
 import org.angproj.io.sel.PipePair
 
+
 public abstract class NetworkConnect : NetworkDriver() {
 
     protected fun socket(domain: ProtocolFamily, type: SockType, protocol: Int): FileDescr {
         val fd = NativeInterface.socket(domain.toCode(), type.toCode(), protocol)
         if (fd < 0) throw NetworkException(getLastErrorString())
         return FileDescr(fd)
+    }
+
+    protected fun connect(sock: FileDescr, addr: SockAddrUnix): Boolean {
+        val n = NativeInterface.connect(sock.single, addr.ptr, addr.limit)
+        return if (n == 0) true else when(getLastError()) {
+            Errno.EAGAIN, Errno.EWOULDBLOCK -> false
+            else -> throw NetworkException(getLastErrorString())
+        }
+    }
+
+    protected fun getpeername(fd: FileDescr, addr: SockAddrUnix): Boolean {
+        val n = NativeInterface.getpeername(fd.single, addr.ptr, addr.capacity)
+        return when(n < 0) {
+            true -> throw NetworkException(getLastErrorString())
+            else -> {
+                addr.newLimit(n)
+                true
+            }
+        }
     }
 
     protected fun pipe(pipeFd: PipePair): Int = NativeInterface.pipe(pipeFd.pair)

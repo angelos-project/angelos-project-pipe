@@ -21,20 +21,23 @@ import org.angproj.aux.mem.BufMgr
 import org.angproj.aux.utf.Ascii
 import org.angproj.aux.util.toCodePoint
 import org.angproj.io.ffi.NativeLayout
-import org.angproj.io.ffi.NativeStruct
 import org.angproj.io.ffi.type.BsdSockAddrUnixT
+import org.angproj.io.net.ProtocolFamily
 
 
 public class BsdSockAddrUnix internal constructor(
     bin: Binary, offset: Int, layout: NativeLayout<BsdSockAddrUnix>
-) : NativeStruct(bin, offset, layout), BsdSockAddrUnixT {
+) : SockAddrUnix(bin, offset, layout), BsdSockAddrUnixT {
 
     override val sunLen: UByte
         get() = bin.loadUByte(0)
 
-    override var sunFamily: UByte
-        get() = bin.loadUByte(1)
-        set(value) { bin.saveUByte(1, value) }
+    override var sunFamily: ProtocolFamily
+        get() = ProtocolFamily.mapCode(bin.loadUByte(1).toInt())
+        set(value) {
+            require(value != ProtocolFamily.UNKNOWN)
+            bin.saveUByte(1, value.toCode().toUByte())
+        }
 
     override var sunAddr: Text
         get() = getPath()
@@ -53,8 +56,7 @@ public class BsdSockAddrUnix internal constructor(
         check(txt.limit <= 107)
         val dstOff = offsetOf(2) + offset
         txt.asBinary().copyInto(bin, dstOff, 0, txt.limit)
-        bin.wrap(dstOff) {
-            positionAt(txt.limit+1)
+        bin.wrap(dstOff + txt.limit) {
             writeGlyph(Ascii.CTRL_NUL.cp.toCodePoint())
         }
         bin.saveUByte(0, (txt.limit+1).toUByte())
@@ -67,7 +69,7 @@ public class BsdSockAddrUnix internal constructor(
             TypeSize.LONG, TypeSize.LONG, TypeSize.LONG, TypeSize.LONG,
             TypeSize.LONG, TypeSize.LONG, TypeSize.LONG, TypeSize.LONG,
             TypeSize.LONG, TypeSize.LONG, TypeSize.LONG, TypeSize.LONG,
-            TypeSize.LONG, TypeSize.INT // 108 bytes of filler
+            TypeSize.LONG, TypeSize.INT // 108 bytes of filler on whatever
         )
 
         override fun create(

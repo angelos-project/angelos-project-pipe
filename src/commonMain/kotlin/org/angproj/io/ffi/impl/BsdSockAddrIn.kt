@@ -17,12 +17,11 @@ package org.angproj.io.ffi.impl
 import org.angproj.aux.io.Binary
 import org.angproj.aux.io.TypeSize
 import org.angproj.io.ffi.NativeLayout
-import org.angproj.io.ffi.NativeStruct
 import org.angproj.io.ffi.type.BsdSockAddrInT
 
 public class BsdSockAddrIn internal constructor(
     bin: Binary, offset: Int, layout: NativeLayout<BsdSockAddrIn>
-) : NativeStruct(bin, offset, layout), BsdSockAddrInT {
+) : SockAddrIn(bin, offset, layout), BsdSockAddrInT {
 
     override var sinFamily: UByte
         get() = bin.loadUByte(1)

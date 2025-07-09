@@ -14,8 +14,12 @@
  */
 package org.angproj.io.sel
 
+import org.angproj.io.ffi.impl.SockAddrUnix
+
 @Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 public expect abstract class SelectorProvider() {
 
     public fun openNativeSelector(): NativeSelector<*, *>
+
+    public fun newSockAddrUnix(): SockAddrUnix
 }

@@ -12,17 +12,9 @@
  * Contributors:
  *      Kristoffer Paulsson - initial implementation
  */
-package org.angproj.io.sel
+package org.angproj.io.net
 
-import org.angproj.io.ffi.impl.SockAddrUnix
+import org.angproj.io.pipe.Channel
 
-@Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
-public actual abstract class SelectorProvider {
-    public actual fun openNativeSelector(): NativeSelector<*, *> {
-        throw UnsupportedOperationException()
-    }
-
-    public actual fun newSockAddrUnix(): SockAddrUnix {
-        throw UnsupportedOperationException()
-    }
+public abstract class ChannelIO: Channel() {
 }

@@ -16,17 +16,17 @@ package org.angproj.io.net
 
 import kotlinx.cinterop.*
 import org.angproj.aux.util.TypePointer
-import platform.posix.strerror as posix_strerror
-import platform.posix.errno as posix_errno
-import platform.posix.read as posix_read
-import platform.posix.write as posix_write
-import platform.posix.socket as posix_socket
-import platform.posix.connect as posix_connect
-import platform.posix.pipe as posix_pipe
 import platform.posix.close as posix_close
-import platform.posix.poll as posix_poll
+import platform.posix.connect as posix_connect
+import platform.posix.errno as posix_errno
 import platform.posix.fcntl as posix_fcntl
+import platform.posix.pipe as posix_pipe
+import platform.posix.poll as posix_poll
+import platform.posix.read as posix_read
 import platform.posix.shutdown as posix_shutdown
+import platform.posix.socket as posix_socket
+import platform.posix.strerror as posix_strerror
+import platform.posix.write as posix_write
 
 
 @OptIn(ExperimentalForeignApi::class, UnsafeNumber::class)
@@ -40,11 +40,11 @@ public actual object NativeInterface {
         return posix_errno
     }
 
-    public actual fun read(fd: Int, data: TypePointer, size: Long): Int {
+    public actual fun read(fd: Int, data: TypePointer, size: Int): Int {
         return posix_read(fd, data.toPointer().toCPointer<CArrayPointerVar<ByteVar>>(), size.convert())
     }
 
-    public actual fun write(fd: Int, data: TypePointer, size: Long): Int {
+    public actual fun write(fd: Int, data: TypePointer, size: Int): Int {
         return posix_write(fd, data.toPointer().toCPointer<CArrayPointerVar<ByteVar>>(), size.convert())
     }
 
@@ -89,5 +89,9 @@ public actual object NativeInterface {
 
     public actual fun shutdown(s: Int, how: Int): Int {
         return posix_shutdown(s, how)
+    }
+
+    public actual fun getpeername(fd: Int, addr: TypePointer, len: Int): Int {
+        throw UnsupportedOperationException()
     }
 }

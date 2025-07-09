@@ -24,17 +24,20 @@ import org.angproj.aux.mem.BufMgr
 import org.angproj.aux.utf.Ascii
 import org.angproj.aux.util.toCodePoint
 import org.angproj.io.ffi.NativeLayout
-import org.angproj.io.ffi.NativeStruct
 import org.angproj.io.ffi.type.DefaultSockAddrUnixT
+import org.angproj.io.net.ProtocolFamily
 
 
 public class LinuxSockAddrUnix internal constructor(
     bin: Binary, offset: Int, layout: NativeLayout<LinuxSockAddrUnix>
-) : NativeStruct(bin, offset, layout), DefaultSockAddrUnixT {
+) : SockAddrUnix(bin, offset, layout), DefaultSockAddrUnixT {
 
-    override var sunFamily: UShort
-        get() = bin.loadUShort(0)
-        set(value) { bin.saveUShort(0, value) }
+    override var sunFamily: ProtocolFamily
+        get() = ProtocolFamily.mapCode(bin.loadUShort(0).toInt())
+        set(value) {
+            require(value != ProtocolFamily.UNKNOWN)
+            bin.saveUShort(0, value.toCode().toUShort())
+        }
 
     override var sunAddr: Text
         get() = getPath()

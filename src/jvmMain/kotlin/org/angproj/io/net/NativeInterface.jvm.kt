@@ -20,6 +20,7 @@ import jnr.ffi.LastError
 import jnr.ffi.Library
 import jnr.ffi.Platform
 import jnr.ffi.Runtime
+import jnr.ffi.byref.IntByReference
 import org.angproj.aux.util.TypePointer
 
 public actual object NativeInterface {
@@ -43,11 +44,11 @@ public actual object NativeInterface {
         return LastError.getLastError(runtime)
     }
 
-    public actual fun read(fd: Int, data: TypePointer, size: Long): Int {
+    public actual fun read(fd: Int, data: TypePointer, size: Int): Int {
         return libc.read(fd, data.toPointer(), size)
     }
 
-    public actual fun write(fd: Int, data: TypePointer, size: Long): Int {
+    public actual fun write(fd: Int, data: TypePointer, size: Int): Int {
         return libc.write(fd, data.toPointer(), size)
     }
 
@@ -101,4 +102,11 @@ public actual object NativeInterface {
         return libc.shutdown(s, how)
     }
 
+    public actual fun getpeername(fd: Int, addr: TypePointer, len: Int): Int {
+        val newLen = IntByReference(len)
+        return when(libc.getpeername(fd, addr.toPointer(), newLen)) {
+            -1 -> -1
+            else -> newLen.toInt()
+        }
+    }
 }

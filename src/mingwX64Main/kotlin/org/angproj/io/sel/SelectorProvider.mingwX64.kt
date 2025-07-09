@@ -14,10 +14,18 @@
  */
 package org.angproj.io.sel
 
+import org.angproj.io.ffi.impl.DefaultSockAddrUnix
+import org.angproj.io.ffi.impl.SockAddrUnix
+import kotlin.experimental.ExperimentalNativeApi
+
+@OptIn(ExperimentalNativeApi::class)
 @Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 public actual abstract class SelectorProvider {
     public actual fun openNativeSelector(): NativeSelector<*, *> {
         throw UnsupportedOperationException()
     }
 
+    public actual fun newSockAddrUnix(): SockAddrUnix = when(Platform.osFamily) {
+        else -> DefaultSockAddrUnix.allocate()
+    }
 }

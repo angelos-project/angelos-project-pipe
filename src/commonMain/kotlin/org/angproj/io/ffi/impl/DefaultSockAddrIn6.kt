@@ -17,13 +17,12 @@ package org.angproj.io.ffi.impl
 import org.angproj.aux.io.Binary
 import org.angproj.aux.io.TypeSize
 import org.angproj.io.ffi.NativeLayout
-import org.angproj.io.ffi.NativeStruct
-import org.angproj.io.ffi.type.DefaultSockAddrInT
+import org.angproj.io.ffi.type.DefaultSockAddrIn6T
 
 
-public class DefaultSockAddrIn internal constructor(
-    bin: Binary, offset: Int, layout: NativeLayout<DefaultSockAddrIn>
-) : SockAddrIn(bin, offset, layout), DefaultSockAddrInT {
+/*public class DefaultSockAddrIn6 internal constructor(
+    bin: Binary, offset: Int, layout: NativeLayout<DefaultSockAddrIn6>
+) : SockAddrIn6(bin, offset, layout), DefaultSockAddrIn6T {
 
     override var sinFamily: UShort
         get() = bin.loadUShort(0)
@@ -37,16 +36,16 @@ public class DefaultSockAddrIn internal constructor(
         get() = bin.loadUInt(2)
         set(value) { bin.saveUInt(2, value) }
 
-    public companion object : NativeLayout<DefaultSockAddrIn>() {
+    public companion object : NativeLayout<DefaultSockAddrIn6>() {
         override val layout: Array<TypeSize> = arrayOf(
             TypeSize.U_SHORT, TypeSize.U_SHORT, TypeSize.U_INT, TypeSize.LONG
         )
 
         override fun create(
-            bin: Binary, index: Int, layout: NativeLayout<DefaultSockAddrIn>
-        ): DefaultSockAddrIn = DefaultSockAddrIn(bin, index, layout)
+            bin: Binary, index: Int, layout: NativeLayout<DefaultSockAddrIn6>
+        ): DefaultSockAddrIn6 = DefaultSockAddrIn6(bin, index, layout)
     }
-}
+}*/
 
 /**
  *         public final Unsigned16 sin_family = new Unsigned16();

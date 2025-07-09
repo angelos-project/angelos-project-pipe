@@ -53,10 +53,10 @@ public interface LibC {
     public fun close(fd: Int): Int
 
     @ssize_t
-    public fun read(fd: Int, @Out data: /*ByteArray?*/ Long, @size_t size: Long): Int
+    public fun read(fd: Int, @Out data: /*ByteArray?*/ Long, @size_t size: Int): Int
 
     @ssize_t
-    public fun write(fd: Int, @In data: /*ByteArray?*/ Long, @size_t size: Long): Int
+    public fun write(fd: Int, @In data: /*ByteArray?*/ Long, @size_t size: Int): Int
 
 
     public fun poll(@In @Out pfds: /*ByteBuffer?*/ Long, nfds: Int, timeout: Int): Int

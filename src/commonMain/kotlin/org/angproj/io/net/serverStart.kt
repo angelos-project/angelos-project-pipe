@@ -16,5 +16,5 @@ package org.angproj.io.net
 
 
 public object serverStart: NetworkConnect() {
-    public operator fun invoke(block: serverStart.() -> PosixSocketTransport): PosixSocketTransport = this.block()
+    public operator fun invoke(block: serverStart.() -> ServerSocket): ServerSocket = this.block()
 }

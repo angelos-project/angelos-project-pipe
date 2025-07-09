@@ -14,11 +14,10 @@
  */
 package org.angproj.io.net
 
-import org.angproj.io.pipe.Channel
 import org.angproj.io.pipe.ChannelMode
 
 
-public class ServerSocket: Server, Channel() {
+public class ServerSocket: Server, ChannelIO() {
     override val port: Short
         get() = TODO("Not yet implemented")
 
@@ -26,10 +25,12 @@ public class ServerSocket: Server, Channel() {
         TODO("Not yet implemented")
     }
 
-    override val id: Int
+    override var id: Int
         get() = TODO("Not yet implemented")
-    override val mode: ChannelMode
+        set(value) {}
+    override var mode: ChannelMode
         get() = TODO("Not yet implemented")
+        set(value) {}
 
     override fun isOpen(): Boolean {
         TODO("Not yet implemented")

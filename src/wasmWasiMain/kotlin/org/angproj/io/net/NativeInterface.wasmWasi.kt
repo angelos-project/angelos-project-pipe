@@ -27,11 +27,11 @@ public actual object NativeInterface {
         return 0
     }
 
-    public actual fun read(fd: Int, data: TypePointer, size: Long): Int {
+    public actual fun read(fd: Int, data: TypePointer, size: Int): Int {
         throw UnsupportedOperationException()
     }
 
-    public actual fun write(fd: Int, data: TypePointer, size: Long): Int {
+    public actual fun write(fd: Int, data: TypePointer, size: Int): Int {
         throw UnsupportedOperationException()
     }
 
@@ -75,6 +75,10 @@ public actual object NativeInterface {
     }
 
     public actual fun shutdown(s: Int, how: Int): Int {
+        throw UnsupportedOperationException()
+    }
+
+    public actual fun getpeername(fd: Int, addr: TypePointer, len: Int): Int {
         throw UnsupportedOperationException()
     }
 }
